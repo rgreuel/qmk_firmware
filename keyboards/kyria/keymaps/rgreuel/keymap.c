@@ -34,21 +34,21 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
  * Base Layer: QWERTY
  *
  * ,-------------------------------------------.                              ,-------------------------------------------.
- * |  Tab   |   Q  |   W  |   E  |   R  |   T  |                              |   Y  |   U  |   I  |   O  |   P  |  \ |   |
+ * | ESC    |   Q  |   W  |   E  |   R  |   T  |                              |   Y  |   U  |   I  |   O  |   P  |  \ |   |
  * |--------+------+------+------+------+------|                              |------+------+------+------+------+--------|
- * | LShift |   A  |   S  |  D   |   F  |   G  |                              |   H  |   J  |   K  |   L  | ;  : |  ' "   |
+ * |LSFT/Tab|   A  |   S  |  D   |   F  |   G  |                              |   H  |   J  |   K  |   L  | ;  : |  ' "   |
  * |--------+------+------+------+------+------+-------------.  ,-------------+------+------+------+------+------+--------|
- * | LCtrl  |   Z  |   X  |   C  |   V  |   B  |LShift| CCCV |  |LShift|LShift|   N  |   M  | ,  < | . >  | /  ? |  - _   |
+ * | LCTL   |   Z  |   X  |   C  |   V  |   B  | CCCV | Alt  |  | Del  |Leader|   N  |   M  | ,  < | . >  | /  ? |  - _   |
  * `----------------------+------+------+------+------+------|  |------+------+------+------+------+----------------------'
- *                        | GUI  | Alt  |      | Bksp | Del  |  | Enter| Space|      | Esc  | AltGr|
- *                        |      |      | Lower| LCtrl|      |  | LCtrl| Nav  | Raise|      |      |
+ *                        | Mute | GUI  |      | Space| Enter|  | Bspc | Space|      | RCTL | AltGr|
+ *                        |      |      | Lower| Shift| LCTL |  |      | Nav  | Raise|      |      |
  *                        `----------------------------------'  `----------------------------------'
  */
     [QWERTY] = LAYOUT(
-      KC_TAB,       KC_Q,   KC_W,   KC_E,   KC_R,   KC_T,                                         KC_Y,    KC_U,    KC_I,    KC_O,    KC_P,    KC_BSLS,
-      KC_LSFT,   KC_A,   KC_S,   KC_D,   KC_F,   KC_G,                                         KC_H,    KC_J,    KC_K,    KC_L,    KC_SCLN, KC_QUOT,
-      KC_LCTL,                 KC_Z,   KC_X,   KC_C,   KC_V,   KC_B,  KC_LSFT,   KC_CCCV, KC_LSFT, KC_LSFT, KC_N,    KC_M,    KC_COMM, KC_DOT,  KC_SLSH, KC_MINS,
-              KC_LGUI, KC_LALT, MO(LOWER), MT(MOD_LCTL, KC_BSPC), KC_DEL, LT(MOD_LCTL, KC_ENT), LT(NAV, KC_SPC), MO(RAISE),  KC_ESC, KC_RALT
+      KC_ESC,  KC_Q,   KC_W,   KC_E,   KC_R,   KC_T,                                         KC_Y,    KC_U,    KC_I,    KC_O,    KC_P,    KC_BSLS,
+      MT(MOD_LSFT, KC_TAB), KC_A,   KC_S,   KC_D,   KC_F,   KC_G,                                         KC_H,    KC_J,    KC_K,    KC_L,    KC_SCLN, KC_QUOT,
+      KC_LCTL, KC_Z,   KC_X,   KC_C,   KC_V,   KC_B,   KC_CCCV,   KC_LALT, KC_DEL, KC_LEAD,  KC_N,    KC_M,    KC_COMM, KC_DOT,  KC_SLSH, KC_MINS,
+              KC_MUTE, KC_LGUI, MO(LOWER), MT(MOD_LSFT, KC_SPC), MT(MOD_LCTL, KC_ENT), KC_BSPC, LT(NAV, KC_SPC), MO(RAISE), KC_RCTL, KC_RALT
     ),
 /*
  * Lower Layer: Numpad, Media

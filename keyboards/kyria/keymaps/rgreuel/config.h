@@ -27,6 +27,10 @@
   #define RGBLIGHT_VAL_STEP 8
 #endif
 
+// The Leader key allows to flexibly assign macros to key sequences.
+#define LEADER_PER_KEY_TIMING
+#define LEADER_TIMEOUT 350
+
 #define TAPPING_TERM 200
 
 // If you are using an Elite C rev3 on the slave side, uncomment the lines below:
