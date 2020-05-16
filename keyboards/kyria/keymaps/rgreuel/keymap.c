@@ -40,7 +40,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
  * |--------+------+------+------+------+------+-------------.  ,-------------+------+------+------+------+------+--------|
  * | LCTL   |   Z  |   X  |   C  |   V  |   B  | CCCV | Alt  |  | Del  |Leader|   N  |   M  | ,  < | . >  | /  ? |  - _   |
  * `----------------------+------+------+------+------+------|  |------+------+------+------+------+----------------------'
- *                        | Mute | GUI  |      | Space| Enter|  | Bspc | Space|      | RCTL | AltGr|
+ *                        | Play | GUI  |      | Space| Enter|  | Bspc | Space|      | RCTL | Mute |
  *                        |      |      | Lower| Shift| LCTL |  |      | Nav  | Raise|      |      |
  *                        `----------------------------------'  `----------------------------------'
  */
@@ -48,7 +48,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
       KC_ESC,  KC_Q,   KC_W,   KC_E,   KC_R,   KC_T,                                         KC_Y,    KC_U,    KC_I,    KC_O,    KC_P,    KC_BSLS,
       MT(MOD_LSFT, KC_TAB), KC_A,   KC_S,   KC_D,   KC_F,   KC_G,                                         KC_H,    KC_J,    KC_K,    KC_L,    KC_SCLN, KC_QUOT,
       KC_LCTL, KC_Z,   KC_X,   KC_C,   KC_V,   KC_B,   KC_CCCV,   KC_LALT, KC_DEL, KC_LEAD,  KC_N,    KC_M,    KC_COMM, KC_DOT,  KC_SLSH, KC_MINS,
-              KC_MUTE, KC_LGUI, MO(LOWER), MT(MOD_LSFT, KC_SPC), MT(MOD_LCTL, KC_ENT), KC_BSPC, LT(NAV, KC_SPC), MO(RAISE), KC_RCTL, KC_RALT
+              KC_MPLY, KC_LGUI, MO(LOWER), MT(MOD_LSFT, KC_SPC), MT(MOD_LCTL, KC_ENT), KC_BSPC, LT(NAV, KC_SPC), MO(RAISE), KC_RCTL, KC_MUTE
     ),
 /*
  * Lower Layer: Numpad, Media
@@ -247,19 +247,45 @@ void oled_task_user(void) {
 #ifdef ENCODER_ENABLE
 void encoder_update_user(uint8_t index, bool clockwise) {
     if (index == 0) {
-        // Volume control
-        if (clockwise) {
-            tap_code(KC_VOLU);
-        } else {
-            tap_code(KC_VOLD);
+        switch (biton32(layer_state)) {
+            case QWERTY:
+                // History scrubbing. For Adobe products, hold shift while moving
+                // backward to go forward instead.
+                if (clockwise) {
+                    tap_code16(C(KC_Y));
+                } else {
+                    tap_code16(C(KC_Z));
+                }
+                break;
+
+            default:
+                // Move whole words. Hold shift to select while moving.
+                if (clockwise) {
+                    tap_code16(C(KC_RGHT));
+                } else {
+                    tap_code16(C(KC_LEFT));
+                }
+                break;
         }
-    }
-    else if (index == 1) {
-        // Page up/Page down
-        if (clockwise) {
-            tap_code(KC_PGDN);
-        } else {
-            tap_code(KC_PGUP);
+    } else if (index == 1) {
+        switch (biton32(layer_state)) {
+            case QWERTY:
+                // Volume control.
+                if (clockwise) {
+                    tap_code(KC_VOLU);
+                } else {
+                    tap_code(KC_VOLD);
+                }
+                break;
+
+            default:
+                // Scrolling with PageUp and PgDn.
+                if (clockwise) {
+                    tap_code(KC_PGDN);
+                } else {
+                    tap_code(KC_PGUP);
+                }
+                break;
         }
     }
 }
