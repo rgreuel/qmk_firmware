@@ -26,7 +26,8 @@ enum layers {
 };
 
 enum custom_keycodes {
-    KC_CCCV = SAFE_RANGE
+    KC_CCCV = SAFE_RANGE,
+    KC_BSDEL
 };
 
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
@@ -38,17 +39,17 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
  * |--------+------+------+------+------+------|                              |------+------+------+------+------+--------|
  * |LSFT/Tab|   A  |   S  |   D  |   F  |   G  |                              |   H  |   J  |   K  |   L  | ;  : |  ' "   |
  * |--------+------+------+------+------+------+-------------.  ,-------------+------+------+------+------+------+--------|
- * | LCTL   |   Z  |   X  |   C  |   V  |   B  | CCCV | Alt  |  | Del  |Leader|   N  |   M  | ,  < | . >  | /  ? |  - _   |
+ * | LCTL   |   Z  |   X  |   C  |   V  |   B  | CCCV | Alt  |  | Alt  |Leader|   N  |   M  | ,  < | . >  | /  ? |  - _   |
  * `----------------------+------+------+------+------+------|  |------+------+------+------+------+----------------------'
  *                        | Play | GUI  |      | Space| Enter|  | Bspc | Space|      | RCTL | Mute |
- *                        |      |      | Lower| Shift| LCTL |  |      | Nav  | Raise|      |      |
+ *                        |      |      | Lower| Shift| LCTL |  | Del  | Nav  | Raise|      |      |
  *                        `----------------------------------'  `----------------------------------'
  */
     [QWERTY] = LAYOUT(
       KC_ESC,  KC_Q,   KC_W,   KC_E,   KC_R,   KC_T,                                         KC_Y,    KC_U,    KC_I,    KC_O,    KC_P,    KC_BSLS,
       MT(MOD_LSFT, KC_TAB), KC_A,   KC_S,   KC_D,   KC_F,   KC_G,                                         KC_H,    KC_J,    KC_K,    KC_L,    KC_SCLN, KC_QUOT,
-      KC_LCTL, KC_Z,   KC_X,   KC_C,   KC_V,   KC_B,   KC_CCCV,   KC_LALT, KC_DEL, KC_LEAD,  KC_N,    KC_M,    KC_COMM, KC_DOT,  KC_SLSH, KC_MINS,
-              KC_MPLY, KC_LGUI, MO(LOWER), MT(MOD_LSFT, KC_SPC), MT(MOD_LCTL, KC_ENT), KC_BSPC, LT(NAV, KC_SPC), MO(RAISE), KC_RCTL, KC_MUTE
+      KC_LCTL, KC_Z,   KC_X,   KC_C,   KC_V,   KC_B,   KC_CCCV,   KC_LALT, KC_RALT, KC_LEAD,  KC_N,    KC_M,    KC_COMM, KC_DOT,  KC_SLSH, KC_MINS,
+              KC_MPLY, KC_LGUI, MO(LOWER), MT(MOD_LSFT, KC_SPC), MT(MOD_LCTL, KC_ENT), KC_BSDEL, LT(NAV, KC_SPC), MO(RAISE), KC_RCTL, KC_MUTE
     ),
 /*
  * Lower Layer: Numpad, Number Row, Media
@@ -98,7 +99,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
  * |--------+------+------+------+------+------|                              |------+------+------+------+------+--------|
  * |        |      |      |      |      |      |                              | PgDn | Left | Down | Right|      | CapsLk |
  * |--------+------+------+------+------+------+-------------.  ,-------------+------+------+------+------+------+--------|
- * |        |      |      |      |      |      |      |      |  |      |      |      |      |      |      |      |        |
+ * |        |      |      |      |      |      |      |      |  |      |      |      |      |      |      |      | PrtScn |
  * `----------------------+------+------+------+------+------|  |------+------+------+------+------+----------------------'
  *                        |      |      |      |      |      |  |      |      |      |      |      |
  *                        |      |      | Lower|      |      |  |      | Nav  | Raise|      |      |
@@ -107,7 +108,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
     [NAV] = LAYOUT(
       _______, _______, _______, _______, _______, _______,                                     KC_PGUP, KC_HOME, KC_UP,   KC_END,  _______, KC_SLCK,
       _______, _______, _______, _______, _______, _______,                                     KC_PGDN, KC_LEFT, KC_DOWN, KC_RGHT, _______, KC_CAPS,
-      _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______,
+      _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, KC_PSCR,
                                  _______, _______, _______, _______, _______, _______, _______, _______, _______, _______
     ),
 /*
@@ -157,7 +158,29 @@ layer_state_t layer_state_set_user(layer_state_t state) {
 }
 
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
+    static bool bsdel_mods = false;
     switch (keycode) {
+        case KC_BSDEL: // Backspace/Delete
+            if (record->event.pressed) {
+                if (get_mods() & MOD_BIT(KC_LSFT)) {
+                unregister_code(KC_LSFT);
+                register_code(KC_DEL);
+                bsdel_mods = true;
+                } else {
+                register_code(KC_BSPC);
+                }
+            } else {
+                if (bsdel_mods) {
+                unregister_code(KC_DEL);
+                register_code(KC_LSFT);
+                bsdel_mods = false;
+                } else {
+                unregister_code(KC_BSPC);
+                }
+            }
+            return false;
+            break;
+
         case KC_CCCV:  // One key copy/paste
             if (record->event.pressed) {
                 copy_paste_timer = timer_read();
@@ -172,6 +195,44 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     }
     return true;
 }
+
+LEADER_EXTERNS();
+
+void matrix_scan_user(void) {
+    LEADER_DICTIONARY() {
+        leading = false;
+        leader_end();
+
+        SEQ_ONE_KEY(KC_C) { // Inline Code
+            SEND_STRING("`` " SS_TAP(X_LEFT) SS_TAP(X_LEFT));
+        }
+
+        SEQ_ONE_KEY(KC_S) { // Windows screenshot
+            SEND_STRING(SS_LGUI("\nS"));
+        }
+
+        SEQ_ONE_KEY(KC_L) { // Windows lock screen
+            SEND_STRING(SS_LGUI("\nl"));
+        }
+
+        SEQ_TWO_KEYS(KC_T, KC_M) { // Windows task manager
+             tap_code16(LCTL(LSFT(KC_ESC)));
+        }
+
+        SEQ_THREE_KEYS(KC_C, KC_A, KC_D) { // Control-Alt-Delete
+            tap_code16(LCTL(LALT(KC_DEL)));
+        }
+
+        SEQ_TWO_KEYS(KC_F, KC_L) { // Flash left half of keyboard
+            SEND_STRING("qmk flash -bl dfu-split-left" SS_TAP(X_ENTER));
+        }
+
+        SEQ_TWO_KEYS(KC_F, KC_R) { // Flash right half of keyboard
+            SEND_STRING("qmk flash -bl dfu-split-right" SS_TAP(X_ENTER));
+        }
+    }
+}
+
 
 #ifdef OLED_DRIVER_ENABLE
 oled_rotation_t oled_init_user(oled_rotation_t rotation) {
