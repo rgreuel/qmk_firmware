@@ -22,6 +22,7 @@ build/
 .vagrant/
 quantum/version.h
 .idea/
+.metals
 CMakeLists.txt
 cmake-build-debug
 .clang_complete
