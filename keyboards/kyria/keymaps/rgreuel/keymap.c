@@ -22,7 +22,8 @@ enum layers {
     LOWER,
     RAISE,
     NAV,
-    ADJUST
+    ADJUST,
+    GAMING
 };
 
 enum custom_keycodes {
@@ -131,6 +132,26 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
       _______, _______, RGB_SAD, RGB_HUD, RGB_VAD, RGB_RMOD,_______, _______, _______, _______, _______,   KC_F1,   KC_F2,   KC_F3,   KC_F12,  _______,
                                  _______, _______, _______, _______, _______, _______, _______, _______, _______, _______
     ),
+/*
+ * Gaming Layer
+ *
+ * ,-------------------------------------------.                              ,-------------------------------------------.
+ * |   1    | TAB  |   Q  |   W  |   E  |   R  |                              |      |      |      |      |      |        |
+ * |--------+------+------+------+------+------|                              |------+------+------+------+------+--------|
+ * |   2    | LSFT |   A  |   S  |   D  |   F  |                              |      |      |      |      |      |        |
+ * |--------+------+------+------+------+------+-------------.  ,-------------+------+------+------+------+------+--------|
+ * |   3    | LCTL |   Z  |   X  |   C  |   V  |   B  | Alt  |  |      |      |      |      |      |      |      |        |
+ * `----------------------+------+------+------+------+------|  |------+------+------+------+------+----------------------'
+ *                        |  ESC |   4  |   5  | Space| Enter|  |Qwerty|      |      |      | Mute |
+ *                        |      |      |      |      |      |  |      |      |      |      |      |
+ *                        `----------------------------------'  `----------------------------------'
+ */
+    [GAMING] = LAYOUT(
+      KC_1,   KC_TAB,  KC_Q,   KC_W,   KC_E,   KC_R,                                        _______,   _______,   _______,   _______,   _______, _______,
+      KC_2,   KC_LSFT, KC_A,   KC_S,   KC_D,   KC_F,                                        _______,   _______,   _______,   _______,   _______, _______,
+      KC_3,   KC_LCTL, KC_Z,   KC_X,   KC_C,   KC_V,   KC_B,   KC_LALT,  _______, _______,  _______,   _______,   _______,   _______,   _______, _______,
+                               KC_ESC, KC_4,   KC_5,  KC_SPC, KC_ENT, TO(QWERTY), _______,  _______,   _______,   KC_MUTE
+    ),
 // /*
 //  * Layer template
 //  *
@@ -202,6 +223,10 @@ void matrix_scan_user(void) {
     LEADER_DICTIONARY() {
         leading = false;
         leader_end();
+
+        SEQ_ONE_KEY(KC_G) { // Toggle gaming layer
+            layer_move(GAMING);
+        }
 
         SEQ_ONE_KEY(KC_C) { // Inline Code
             SEND_STRING("`` " SS_TAP(X_LEFT) SS_TAP(X_LEFT));
@@ -284,6 +309,9 @@ static void render_status(void) {
             break;
         case NAV:
             oled_write_P(PSTR("Navigation\n"), false);
+            break;
+        case GAMING:
+            oled_write_P(PSTR("Gaming\n"), false);
             break;
         default:
             oled_write_P(PSTR("Undefined\n"), false);
