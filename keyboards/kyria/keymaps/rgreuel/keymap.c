@@ -250,12 +250,20 @@ void matrix_scan_user(void) {
             SEND_STRING("`` " SS_TAP(X_LEFT) SS_TAP(X_LEFT));
         }
 
-        SEQ_ONE_KEY(KC_S) { // Windows screenshot
-            SEND_STRING(SS_LGUI("\nS"));
+        SEQ_ONE_KEY(KC_S) { // Screenshot
+            if (is_mac) {
+                tap_code16(LCTL(LSFT(LGUI(KC_4))));
+            } else {
+                SEND_STRING(SS_LGUI("\nS"));
+            }
         }
 
-        SEQ_ONE_KEY(KC_L) { // Windows lock screen
-            SEND_STRING(SS_LGUI("\nl"));
+        SEQ_ONE_KEY(KC_L) { // Lock screen
+            if (is_mac) {
+                tap_code16(LCTL(LGUI(KC_Q)));
+            } else {
+                SEND_STRING(SS_LGUI("\nl"));
+            }
         }
 
         SEQ_TWO_KEYS(KC_T, KC_M) { // Windows task manager
