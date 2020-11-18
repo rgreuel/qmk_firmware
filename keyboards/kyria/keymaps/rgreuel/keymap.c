@@ -31,6 +31,8 @@ enum custom_keycodes {
     KC_BSDEL
 };
 
+static bool is_mac = false;
+
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 /*
  * Base Layer: QWERTY
@@ -116,9 +118,9 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
  * Adjust Layer: Function keys, RGB
  *
  * ,-------------------------------------------.                              ,-------------------------------------------.
- * |        |      |      |      |      |      |                              |      |  F7  |  F8  |  F9  |  F10 |        |
+ * | macOS  |      |      |      |      |      |                              |      |  F7  |  F8  |  F9  |  F10 |        |
  * |--------+------+------+------+------+------|                              |------+------+------+------+------+--------|
- * |        | TOG  | SAI  | HUI  | VAI  | MOD  |                              |      |  F4  |  F5  |  F6  |  F11 |        |
+ * | Windows| TOG  | SAI  | HUI  | VAI  | MOD  |                              |      |  F4  |  F5  |  F6  |  F11 |        |
  * |--------+------+------+------+------+------+-------------.  ,-------------+------+------+------+------+------+--------|
  * |        |      | SAD  | HUD  | VAD  | RMOD |      |      |  |      |      |      |  F1  |  F2  |  F3  |  F12 |        |
  * `----------------------+------+------+------+------+------|  |------+------+------+------+------+----------------------'
@@ -127,8 +129,8 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
  *                        `----------------------------------'  `----------------------------------'
  */
     [ADJUST] = LAYOUT(
-      _______, _______, _______, _______, _______, _______,                                     _______,   KC_F7,   KC_F8,   KC_F9,   KC_F10,  _______,
-      _______, RGB_TOG, RGB_SAI, RGB_HUI, RGB_VAI, RGB_MOD,                                     _______,   KC_F4,   KC_F5,   KC_F6,   KC_F11,  _______,
+      MAGIC_SWAP_LCTL_LGUI, _______, _______, _______, _______, _______,                                     _______,   KC_F7,   KC_F8,   KC_F9,   KC_F10,  _______,
+      MAGIC_UNSWAP_LCTL_LGUI, RGB_TOG, RGB_SAI, RGB_HUI, RGB_VAI, RGB_MOD,                                     _______,   KC_F4,   KC_F5,   KC_F6,   KC_F11,  _______,
       _______, _______, RGB_SAD, RGB_HUD, RGB_VAD, RGB_RMOD,_______, _______, _______, _______, _______,   KC_F1,   KC_F2,   KC_F3,   KC_F12,  _______,
                                  _______, _______, _______, _______, _______, _______, _______, _______, _______, _______
     ),
@@ -151,7 +153,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
       KC_2,   KC_LSFT, KC_A,   KC_S,   KC_D,   KC_F,                                        _______,   _______,   _______,   _______,   _______, _______,
       KC_3,   KC_LCTL, KC_Z,   KC_X,   KC_C,   KC_V,   KC_B,   KC_LALT,  _______, _______,  _______,   _______,   _______,   _______,   _______, _______,
                                KC_ESC, KC_4,   KC_5,  KC_SPC, KC_ENT, TO(QWERTY), _______,  _______,   _______,   KC_MUTE
-    ),
+    )
 // /*
 //  * Layer template
 //  *
@@ -202,14 +204,30 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
             return false;
             break;
 
+        case MAGIC_SWAP_LCTL_LGUI:
+            is_mac = true;
+            break;
+
+        case MAGIC_UNSWAP_LCTL_LGUI:
+            is_mac = false;
+            break;
+
         case KC_CCCV:  // One key copy/paste
             if (record->event.pressed) {
                 copy_paste_timer = timer_read();
             } else {
                 if (timer_elapsed(copy_paste_timer) > TAPPING_TERM) {  // Hold, copy
-                    tap_code16(LCTL(KC_C));
+                    if (is_mac) {
+                        tap_code16(LGUI(KC_C));
+                    } else {
+                        tap_code16(LCTL(KC_C));
+                    }
                 } else { // Tap, paste
-                    tap_code16(LCTL(KC_V));
+                    if (is_mac) {
+                        tap_code16(LGUI(KC_V));
+                    } else {
+                        tap_code16(LCTL(KC_V));
+                    }
                 }
             }
             break;
@@ -341,9 +359,17 @@ void encoder_update_user(uint8_t index, bool clockwise) {
                 // History scrubbing. For Adobe products, hold shift while moving
                 // backward to go forward instead.
                 if (clockwise) {
-                    tap_code16(C(KC_Y));
+                    if (is_mac) {
+                        tap_code16(G(KC_Y));
+                    } else {
+                        tap_code16(C(KC_Y));
+                    }
                 } else {
-                    tap_code16(C(KC_Z));
+                    if (is_mac) {
+                        tap_code16(G(KC_Z));
+                    } else {
+                        tap_code16(C(KC_Z));
+                    }
                 }
                 break;
 
