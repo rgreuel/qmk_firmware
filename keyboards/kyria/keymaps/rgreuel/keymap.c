@@ -368,9 +368,9 @@ void encoder_update_user(uint8_t index, bool clockwise) {
                 // backward to go forward instead.
                 if (clockwise) {
                     if (is_mac) {
-                        tap_code16(G(KC_Y));
+                        tap_code16(S(G(KC_Z)));
                     } else {
-                        tap_code16(C(KC_Y));
+                        tap_code16(S(C(KC_Z)));
                     }
                 } else {
                     if (is_mac) {
@@ -384,9 +384,17 @@ void encoder_update_user(uint8_t index, bool clockwise) {
             default:
                 // Move whole words. Hold shift to select while moving.
                 if (clockwise) {
-                    tap_code16(C(KC_RGHT));
+                    if (is_mac) {
+                        tap_code16(A(KC_RGHT));
+                    } else {
+                        tap_code16(C(KC_RGHT));
+                    }
                 } else {
-                    tap_code16(C(KC_LEFT));
+                    if (is_mac) {
+                        tap_code16(A(KC_LEFT));
+                    } else {
+                        tap_code16(C(KC_LEFT));
+                    }
                 }
                 break;
         }
