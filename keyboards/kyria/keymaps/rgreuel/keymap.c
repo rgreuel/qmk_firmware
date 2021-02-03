@@ -15,7 +15,9 @@
  */
 #include QMK_KEYBOARD_H
 
-uint16_t copy_paste_timer;
+uint16_t copy_paste_timer = 0;
+bool is_alt_tab_active = false;
+uint16_t alt_tab_timer = 0;
 
 enum layers {
     QWERTY = 0,
@@ -282,6 +284,17 @@ void matrix_scan_user(void) {
             SEND_STRING("qmk flash -bl dfu-split-right" SS_TAP(X_ENTER));
         }
     }
+
+    if (is_alt_tab_active) {
+        if (timer_elapsed(alt_tab_timer) > 625) {
+            if (is_mac) {
+                unregister_code(KC_LCMD);
+            } else {
+                unregister_code(KC_LALT);
+            }
+            is_alt_tab_active = false;
+        }
+    }
 }
 
 
@@ -401,20 +414,29 @@ void encoder_update_user(uint8_t index, bool clockwise) {
     } else if (index == 1) {
         switch (biton32(layer_state)) {
             case QWERTY:
+                // Window movement
+                if (!is_alt_tab_active) {
+                    is_alt_tab_active = true;
+                    if (is_mac) {
+                        register_code(KC_LCMD);
+                    } else {
+                        register_code(KC_LALT);
+                    }
+                }
+                alt_tab_timer = timer_read();
+                if (clockwise) {
+                    tap_code16(KC_TAB);
+                } else {
+                    tap_code16(S(KC_TAB));
+                }
+                break;
+
+            default:
                 // Volume control.
                 if (clockwise) {
                     tap_code(KC_VOLU);
                 } else {
                     tap_code(KC_VOLD);
-                }
-                break;
-
-            default:
-                // Scrolling with PageUp and PgDn.
-                if (clockwise) {
-                    tap_code(KC_PGDN);
-                } else {
-                    tap_code(KC_PGUP);
                 }
                 break;
         }
